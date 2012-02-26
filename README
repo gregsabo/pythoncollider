@@ -1,0 +1,17 @@
+PythonCollider is a Python client interface for the SuperCollider sound synthesis server.
+
+Example:
+########
+
+from pythoncollider import ugen
+
+oscA = ugen.SinOsc(freq=3, mul=200)
+oscB = ugen.SinOsc(freq=(oscA + 400))
+oscB.play_at(-1)
+
+while 1: pass
+
+########
+
+To use PythonCollider you'll need to have the SuperCollider application installed. It is freely available at:
+http://supercollider.sourceforge.net/
