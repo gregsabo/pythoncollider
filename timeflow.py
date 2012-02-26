@@ -1,3 +1,9 @@
+"""
+timeflow.py
+
+Tools for executing musically-important
+callbacks at regular intervals.
+"""
 import time
 import OSC
 import os
@@ -46,19 +52,26 @@ class TempoClock(object):
 
         beattime = seconds_per_beat * num + self.start_time
         return Beat(beattime, num)
-        
-        
+
+
 class Beat(object):
+    """
+    A point in time, represented as a
+    .time timestamp as well as a 
+    .num beat number.
+    """
     def __init__(self, time, num):
         self.time = time
         self.num = num
 
 def synth_nodes():
+    """
+    Generates unique node ids
+    """
     i = 0
     while True:
         i = i + 1
         yield i
-
 synth_nodes = synth_nodes()
 
 class Group(object):
@@ -84,6 +97,9 @@ class Synth(object):
     """
     Representation of a SuperCollider Synth.
     Its attributes are determined by the synthdefs file.
+
+    Use a Synth object if you're writing your own
+    SynthDef files, otherwise use a Ugen.
     """
     
     def __init__(self, name, group=None, **kwargs):
@@ -170,8 +186,10 @@ class Synth(object):
 
 class AutomatorPool(object):
     """
+    Encapsulates a collection of 'automators'.
+
     An automator is a generator function which
-    yields beats. The automator expects to be
+    yields Beats. The automator expects to be
     invoked before that beat is planned,
     but after any previous beats are planned.
     """
@@ -220,6 +238,9 @@ class Sequencer(object):
     A Seqeuncer has a list of MusicNodes,
     and it periodically calls plan() on each
     of the nodes if their enabled attribute is True.
+
+    It also contains an AutomatorPool, whose automators
+    are notified before all of the MusicNodes for a given beat.
     """
     
     def __init__(self, clock=None):
@@ -287,6 +308,7 @@ class Sequencer(object):
             node.release_all(beat)
         self._stopped = True
 
+#TODO: these don't belong in this file
 current_bufnum = 5
 def read_buffer(filename, channels=1):
     global current_bufnum
