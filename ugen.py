@@ -109,6 +109,9 @@ class Ugen(object):
         loader.client.send(bundle)
         return self
 
+    def play(self):
+        return self.play_at(-1)
+
     def claim(self, messages, group, visited):
         """
         Recursively create a OSC message for each
