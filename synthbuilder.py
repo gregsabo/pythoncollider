@@ -15,5 +15,5 @@ if __name__ == "__main__":
         time.sleep(1)
 
         env.gate = 0
-        oscA.play()
+        oscA.play_now()
         time.sleep(1)
