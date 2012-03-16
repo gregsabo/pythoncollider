@@ -7,7 +7,7 @@ from pythoncollider import ugen
 
 oscA = ugen.SinOsc(freq=3, mul=200)
 oscB = ugen.SinOsc(freq=(oscA + 400))
-oscB.play_at(-1)
+oscB.play_now()
 
 while 1: pass
 
