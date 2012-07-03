@@ -288,7 +288,7 @@ class Sequencer(object):
             if not hasattr(node, "plan"):
                 continue
             
-            if not node.enabled:
+            if hasattr(node, 'enabled') and not node.enabled:
                 return
             
             for beat in self.default_clock.beats_in(span, subdiv=node.get_subdiv()):

@@ -34,6 +34,19 @@ class Ugen(object):
             self._touched_keys.add(key)
             self._params[key] = value
         return self
+    
+    def set_at(self, time, **kwargs):
+        assert self._synth, "you have to play ugens before you can set them."
+        self.set(**kwargs)
+        changed_params = {}
+        for touched_key in self._touched_keys:
+            changed_params[touched_key] = self._params[touched_key]
+        self._synth.set_at(time, **changed_params)
+        self._touched_keys = set()
+        return self
+    
+    def set_now(self, **kwargs):
+        return self.set_at(-1, **kwargs)
 
     def __setattr__(self, key, value):
         self._touched_keys.add(key)
@@ -88,11 +101,10 @@ class Ugen(object):
             object.__setattr__(self, 'group', Group())
 
         self.claim(messages=messages, group=self.group, visited=set([]))
+
+        messages.insert(0, self._synth)
         if is_new_root:
             self._synth.set(out_bus=0)
-        messages.insert(0, self._synth)
-
-        if is_new_root:
             messages.insert(0, self.group.get_message())
 
         bundle = OSC.OSCBundle()
@@ -104,8 +116,6 @@ class Ugen(object):
             if m:
                 bundle.append(m)
 
-        # TODO: decent logging
-        #print 'bundle:', bundle
         loader.client.send(bundle)
         return self
 
@@ -134,8 +144,7 @@ class Ugen(object):
         if not self._synth:
             object.__setattr__(self, '_synth', Synth(self.name, group))
             self._synth.set(out_bus=chosen_busnum)
-        else:
-            print 'visited again:', self, self._touched_keys
+
         self._synth.add_action = 0
         values = self.values()
         for key in self._touched_keys:
@@ -152,11 +161,9 @@ class Ugen(object):
                     map_message = OSC.OSCMessage(linked_element.osc_map_message_key())
                     map_message.append([self._synth.node_id, name, linked_synth.get('out_bus')])
                     messages.append(map_message)
-                    #messages.insert(0, map_message)
                 if linked_synth in messages:
                     messages.remove(linked_synth)
             messages.insert(0, linked_synth)
-            #messages.append(linked_synth)
 
         self._touched_keys.clear()
         return self._synth
